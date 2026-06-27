@@ -90,14 +90,14 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                     <div className="text-right">
                         <div className="text-xs text-slate-500 uppercase tracking-widest">Round</div>
                         <div className={`text-3xl font-bold text-indigo-400 ${round > 0 ? "animate-pulse-glow rounded" : ""}`}>
-  {round}
-</div>
+                            {round}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Main grid */}
-            <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
 
                 {/* Market Share Pie */}
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
@@ -171,8 +171,8 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                                     <div className="flex gap-1 mb-2">
                                         {cHistory.length > 0 ? cHistory.map((s, j) => (
                                             <div key={j}
-                                                className={`flex-1 h-6 rounded text-xs flex items-center justify-center font-bold
-                          ${s === "Cooperate" ? "bg-emerald-900 text-emerald-400" : "bg-red-900 text-red-400"}`}>
+                                                className={`flex-1 h-6 rounded text-xs flex items-center justify-center font-bold animate-slide-in
+                          ${s === "Cooperate" ? "bg-emerald-900 text-emerald-400" : "bg-red-900 text-red-400"}`} style={{ animationDelay: `${j * 50}ms` }}>
                                                 {s === "Cooperate" ? "C" : "D"}
                                             </div>
                                         )) : (
@@ -198,10 +198,10 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
             {lastResult && (
                 <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-4 animate-fade-in">
                     <div className="text-xs text-slate-500 uppercase tracking-widest mb-3">Market Summary</div>
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <div className="text-xs text-slate-600 mb-1">
-                               <TheoryTip term="Nash Equilibrium">Nash Equilibrium</TheoryTip>
+                                <TheoryTip term="Nash Equilibrium">Nash Equilibrium</TheoryTip>
                             </div>
                             <div className={`text-sm font-bold ${lastResult.is_nash ? "text-emerald-400" : "text-red-400"}`}>
                                 {lastResult.is_nash ? "✅ Current round" : "❌ Not reached"}
