@@ -50,16 +50,22 @@ class PayoffMatrix:
         for i in range(self.n):
             is_dominant = True
             for j in range(self.n):
-                # So sánh chiến lược i với tất cả chiến lược khác
-                payoff_i = [self.payoffs[i][k][player_idx] for k in range(self.n)]
-                payoff_j = [self.payoffs[j][k][player_idx] for k in range(self.n)]
+                if i == j:
+                    continue
+                if player_idx == 0:
+                    payoff_i = [self.payoffs[i][k][0] for k in range(self.n)]
+                    payoff_j = [self.payoffs[j][k][0] for k in range(self.n)]
+                else:
+                    payoff_i = [self.payoffs[k][i][1] for k in range(self.n)]
+                    payoff_j = [self.payoffs[k][j][1] for k in range(self.n)]
+
                 if not all(a >= b for a, b in zip(payoff_i, payoff_j)):
                     is_dominant = False
                     break
             if is_dominant:
                 return self.strategies[i]
         return None
-
+    
     def find_nash_equilibrium(self) -> list:
         """
         Tìm Nash Equilibrium (Cân bằng Nash) — pure strategy
