@@ -89,7 +89,9 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                     )}
                     <div className="text-right">
                         <div className="text-xs text-slate-500 uppercase tracking-widest">Round</div>
-                        <div className="text-3xl font-bold text-indigo-400">{round}</div>
+                        <div className={`text-3xl font-bold text-indigo-400 ${round > 0 ? "animate-pulse-glow rounded" : ""}`}>
+  {round}
+</div>
                     </div>
                 </div>
             </div>
@@ -194,7 +196,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
 
             {/* Market Summary */}
             {lastResult && (
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-4">
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-4 animate-fade-in">
                     <div className="text-xs text-slate-500 uppercase tracking-widest mb-3">Market Summary</div>
                     <div className="grid grid-cols-4 gap-4">
                         <div>
