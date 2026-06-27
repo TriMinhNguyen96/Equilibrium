@@ -1,0 +1,142 @@
+{
+  "round_number": 3,
+  "players": [
+    {
+      "id": "p1",
+      "name": "TechCorp",
+      "industry": "Technology",
+      "market_share": 31.86,
+      "total_payoff": 160.0,
+      "strategy_history": [
+        "Cooperate",
+        "Cooperate",
+        "Defect"
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "FinanceHub",
+      "industry": "Finance",
+      "market_share": 36.28,
+      "total_payoff": 200.0,
+      "strategy_history": [
+        "Cooperate",
+        "Defect",
+        "Defect"
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "RetailKing",
+      "industry": "F&B / Retail",
+      "market_share": 31.86,
+      "total_payoff": 160.0,
+      "strategy_history": [
+        "Cooperate",
+        "Cooperate",
+        "Defect"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "round_number": 1,
+      "decisions": {
+        "p1": "Cooperate",
+        "p2": "Cooperate",
+        "p3": "Cooperate"
+      },
+      "payoffs": {
+        "p1": 70,
+        "p2": 70,
+        "p3": 70
+      },
+      "market_shares": {
+        "p1": 33.33,
+        "p2": 33.33,
+        "p3": 33.33
+      },
+      "is_nash": false,
+      "nash_equilibria": [
+        {
+          "strategies": [
+            "Defect",
+            "Defect",
+            "Defect"
+          ],
+          "payoffs": [
+            40,
+            40,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "round_number": 2,
+      "decisions": {
+        "p1": "Cooperate",
+        "p2": "Defect",
+        "p3": "Cooperate"
+      },
+      "payoffs": {
+        "p1": 50,
+        "p2": 90,
+        "p3": 50
+      },
+      "market_shares": {
+        "p1": 28.42,
+        "p2": 43.16,
+        "p3": 28.42
+      },
+      "is_nash": false,
+      "nash_equilibria": [
+        {
+          "strategies": [
+            "Defect",
+            "Defect",
+            "Defect"
+          ],
+          "payoffs": [
+            40,
+            40,
+            40
+          ]
+        }
+      ]
+    },
+    {
+      "round_number": 3,
+      "decisions": {
+        "p1": "Defect",
+        "p2": "Defect",
+        "p3": "Defect"
+      },
+      "payoffs": {
+        "p1": 40,
+        "p2": 40,
+        "p3": 40
+      },
+      "market_shares": {
+        "p1": 31.86,
+        "p2": 36.28,
+        "p3": 31.86
+      },
+      "is_nash": true,
+      "nash_equilibria": [
+        {
+          "strategies": [
+            "Defect",
+            "Defect",
+            "Defect"
+          ],
+          "payoffs": [
+            40,
+            40,
+            40
+          ]
+        }
+      ]
+    }
+  ]
+}
