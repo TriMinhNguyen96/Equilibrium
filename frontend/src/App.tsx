@@ -5,18 +5,16 @@
 import { useState } from "react";
 import Dashboard from "./components/Dashboard";
 import LandingPage from "./components/LandingPage";
-import type { Player } from "./services/api";
 import { api } from "./services/api";
-
-// ============================================================
-// DATA
-// ============================================================
+import type { Player } from "./services/api";
 
 type Screen = "landing" | "game";
 
-// ============================================================
-// UI
-// ============================================================
+interface AISlot {
+  name: string;
+  industry: string;
+  archetype: string;
+}
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("landing");
@@ -26,14 +24,15 @@ export default function App() {
   const [industry, setIndustry] = useState("Technology");
   const [loading, setLoading] = useState(false);
 
-  const handleStart = async (name: string, ind: string) => {
+  const handleStart = async (name: string, ind: string, aiSlots: AISlot[]) => {
     setLoading(true);
     try {
       const result = await api.createGame({
         player_name: name,
         industry: ind,
         difficulty: "Normal",
-        n_competitors: 3,
+        n_competitors: aiSlots.length,
+        ai_slots: aiSlots,
       });
       setGameId(result.game_id);
       setPlayers(result.players);

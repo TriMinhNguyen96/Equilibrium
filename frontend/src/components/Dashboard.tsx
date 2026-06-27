@@ -170,9 +170,10 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                                     </div>
                                     <div className="flex gap-1 mb-2">
                                         {cHistory.length > 0 ? cHistory.map((s, j) => (
-                                            <div key={j}
-                                                className={`flex-1 h-6 rounded text-xs flex items-center justify-center font-bold animate-slide-in
-                          ${s === "Cooperate" ? "bg-emerald-900 text-emerald-400" : "bg-red-900 text-red-400"}`} style={{ animationDelay: `${j * 50}ms` }}>
+                                            <div key={`${c.id}-${j}`}
+                                                className={`flex-1 h-6 rounded text-xs flex items-center justify-center font-bold
+            transition-all duration-300
+            ${s === "Cooperate" ? "bg-emerald-900 text-emerald-400" : "bg-red-900 text-red-400"}`}>
                                                 {s === "Cooperate" ? "C" : "D"}
                                             </div>
                                         )) : (

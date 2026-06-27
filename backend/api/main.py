@@ -24,7 +24,6 @@ from simulation import Simulation
 
 app = FastAPI(title="EQUILIBRIUM API", version="1.0.0")
 
-# CORS — cho phép React frontend gọi API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:5174"],
@@ -32,7 +31,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Game state — lưu trong memory
 games: dict = {}
 
 class GameConfig(BaseModel):
@@ -40,6 +38,7 @@ class GameConfig(BaseModel):
     industry: str
     difficulty: str = "Normal"
     n_competitors: int = 3
+    ai_slots: list = []
 
 class DecisionRequest(BaseModel):
     game_id: str
@@ -51,11 +50,9 @@ class DecisionRequest(BaseModel):
 # ============================================================
 
 def create_game(config: GameConfig) -> dict:
-    """Tạo game mới với config cho trước"""
     import uuid
     game_id = str(uuid.uuid4())[:8]
 
-    # Tạo players — 1 human + n AI competitors
     players = [
         Player(
             id="human",
@@ -65,23 +62,32 @@ def create_game(config: GameConfig) -> dict:
         )
     ]
 
-    # AI competitors
-    ai_archetypes = (ARCHETYPES * 2)[:config.n_competitors]
-    ai_names = ["FinanceHub", "RetailKing", "TechRival", "EnergyX"]
-    ai_industries = ["Finance", "F&B / Retail", "Technology", "Energy"]
+    ai_names = ["FinanceHub", "RetailKing", "TechRival", "EnergyX", "PharmaZ"]
+    ai_industries = ["Finance", "F&B / Retail", "Technology", "Energy", "Healthcare"]
+    ai_archetypes_default = (ARCHETYPES * 2)[:config.n_competitors]
 
     agents = []
     for i in range(config.n_competitors):
+        if config.ai_slots and i < len(config.ai_slots):
+            slot = config.ai_slots[i]
+            a_name = slot.get("name", ai_names[i])
+            a_industry = slot.get("industry", ai_industries[i])
+            a_archetype = slot.get("archetype", ai_archetypes_default[i])
+        else:
+            a_name = ai_names[i]
+            a_industry = ai_industries[i]
+            a_archetype = ai_archetypes_default[i]
+
         players.append(Player(
             id=f"ai_{i}",
-            name=ai_names[i],
-            industry=ai_industries[i],
+            name=a_name,
+            industry=a_industry,
             is_human=False
         ))
         agents.append(Agent(
             id=f"ai_{i}",
-            name=ai_names[i],
-            archetype=ai_archetypes[i]
+            name=a_name,
+            archetype=a_archetype
         ))
 
     engine = RoundEngine(players)
@@ -108,7 +114,6 @@ def create_game(config: GameConfig) -> dict:
     }
 
 def serialize_result(result, players) -> dict:
-    """Convert RoundResult thành JSON-serializable dict"""
     return {
         "round_number": result.round_number,
         "decisions": result.decisions,
@@ -145,13 +150,11 @@ def root():
 
 @app.post("/game/create")
 def api_create_game(config: GameConfig):
-    """Tạo game mới"""
     result = create_game(config)
     return result
 
 @app.post("/game/round")
 def api_run_round(req: DecisionRequest):
-    """Chạy một round — nhận decision của human player"""
     if req.game_id not in games:
         return {"error": "Game not found"}
 
@@ -159,17 +162,12 @@ def api_run_round(req: DecisionRequest):
     engine: RoundEngine = game["engine"]
     agents: list[Agent] = game["agents"]
 
-    # Collect decisions
     decisions = {"human": req.strategy}
-
-    # AI decisions
     for agent in agents:
         decisions[agent.id] = agent.choose_strategy()
 
-    # Run round
     result = engine.run_round(decisions)
 
-    # Update agents
     for agent in agents:
         payoff = result.payoffs.get(agent.id, 0)
         other = decisions.get("human", "Cooperate")
@@ -179,7 +177,6 @@ def api_run_round(req: DecisionRequest):
 
 @app.get("/game/{game_id}/state")
 def api_get_state(game_id: str):
-    """Lấy game state hiện tại"""
     if game_id not in games:
         return {"error": "Game not found"}
 
@@ -207,7 +204,6 @@ def api_get_state(game_id: str):
 
 @app.delete("/game/{game_id}")
 def api_delete_game(game_id: str):
-    """Xóa game"""
     if game_id in games:
         del games[game_id]
     return {"message": "Game deleted"}
@@ -218,11 +214,6 @@ def api_delete_game(game_id: str):
 
 @app.websocket("/ws/{game_id}")
 async def websocket_endpoint(websocket: WebSocket, game_id: str):
-    """
-    WebSocket cho real-time updates
-    Client gửi: {"strategy": "Cooperate", "message": "..."}
-    Server trả: round result + game state
-    """
     await websocket.accept()
 
     if game_id not in games:
@@ -239,20 +230,16 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str):
             engine: RoundEngine = game["engine"]
             agents: list[Agent] = game["agents"]
 
-            # Collect decisions
             decisions = {"human": strategy}
             for agent in agents:
                 decisions[agent.id] = agent.choose_strategy()
 
-            # Run round
             result = engine.run_round(decisions)
 
-            # Update agents
             for agent in agents:
                 payoff = result.payoffs.get(agent.id, 0)
                 agent.update(decisions[agent.id], strategy, payoff)
 
-            # Send result back
             await websocket.send_json(serialize_result(result, engine.players))
 
     except WebSocketDisconnect:

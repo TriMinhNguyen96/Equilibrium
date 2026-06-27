@@ -1,10 +1,17 @@
 const BASE_URL = "http://localhost:8000";
 
+export interface AISlot {
+  name: string;
+  industry: string;
+  archetype: string;
+}
+
 export interface GameConfig {
   player_name: string;
   industry: string;
   difficulty?: string;
   n_competitors?: number;
+  ai_slots?: AISlot[];
 }
 
 export interface Player {
