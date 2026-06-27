@@ -1,13 +1,12 @@
 // ============================================================
 // EQUILIBRIUM — Landing Page
-// Màn hình đầu tiên — chọn tên và ngành
 // ============================================================
+
+import { useState } from "react";
 
 // ============================================================
 // DATA
 // ============================================================
-
-import { useState } from "react";
 
 const INDUSTRIES = [
   "Technology", "Finance", "F&B / Retail", "Manufacturing",
@@ -22,16 +21,16 @@ const INDUSTRIES = [
 
 interface Props {
   onStart: (name: string, industry: string) => void;
+  loading?: boolean;
 }
 
-export default function LandingPage({ onStart }: Props) {
+export default function LandingPage({ onStart, loading }: Props) {
   const [name, setName] = useState("Player");
   const [industry, setIndustry] = useState("Technology");
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4">
 
-      {/* Title */}
       <div className="text-center mb-12">
         <div className="text-xs tracking-[0.3em] text-indigo-400 mb-3 uppercase">
           Game Theory Strategy Game
@@ -45,10 +44,7 @@ export default function LandingPage({ onStart }: Props) {
         </p>
       </div>
 
-      {/* Setup form */}
       <div className="w-full max-w-md space-y-6">
-
-        {/* Name input */}
         <div>
           <label className="text-xs tracking-widest text-slate-500 uppercase mb-2 block">
             Tên công ty
@@ -64,7 +60,6 @@ export default function LandingPage({ onStart }: Props) {
           />
         </div>
 
-        {/* Industry select */}
         <div>
           <label className="text-xs tracking-widest text-slate-500 uppercase mb-2 block">
             Ngành
@@ -82,18 +77,17 @@ export default function LandingPage({ onStart }: Props) {
           </select>
         </div>
 
-        {/* Start button */}
         <button
           onClick={() => onStart(name || "Player", industry)}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold
+          disabled={loading}
+          className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-900
+                     disabled:text-indigo-600 text-white font-semibold
                      py-4 rounded-lg transition-colors tracking-widest uppercase text-sm"
         >
-          Bắt đầu →
+          {loading ? "Đang khởi tạo..." : "Bắt đầu →"}
         </button>
-
       </div>
 
-      {/* Footer */}
       <div className="mt-16 text-xs text-slate-700 tracking-widest uppercase">
         Nash Equilibrium · Evolutionary Dynamics · Mechanism Design
       </div>
