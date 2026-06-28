@@ -10,6 +10,7 @@ import {
     PieChart, Pie, Cell, BarChart, Bar
 } from "recharts";
 import type { RoundResult, Player } from "../services/api";
+import { exportData } from "../services/api";
 
 // ============================================================
 // DATA
@@ -19,19 +20,19 @@ const COLORS = ["#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444"];
 const BASE_URL = "http://localhost:8000";
 
 const ARCHETYPES = [
-    { id: "Defector",   label: "Defector",   color: "#ef4444", bg: "bg-red-950 border-red-800" },
+    { id: "Defector", label: "Defector", color: "#ef4444", bg: "bg-red-950 border-red-800" },
     { id: "Cooperator", label: "Cooperator", color: "#10b981", bg: "bg-emerald-950 border-emerald-800" },
-    { id: "TitForTat",  label: "Tit-for-Tat",color: "#0ea5e9", bg: "bg-blue-950 border-blue-800" },
-    { id: "Random",     label: "Random",     color: "#f59e0b", bg: "bg-amber-950 border-amber-800" },
-    { id: "Adaptive",   label: "Adaptive",   color: "#8b5cf6", bg: "bg-purple-950 border-purple-800" },
+    { id: "TitForTat", label: "Tit-for-Tat", color: "#0ea5e9", bg: "bg-blue-950 border-blue-800" },
+    { id: "Random", label: "Random", color: "#f59e0b", bg: "bg-amber-950 border-amber-800" },
+    { id: "Adaptive", label: "Adaptive", color: "#8b5cf6", bg: "bg-purple-950 border-purple-800" },
 ];
 
 const AI_PRESETS = [
-    { name: "AlphaCore", industry: "Finance",      archetype: "Defector" },
+    { name: "AlphaCore", industry: "Finance", archetype: "Defector" },
     { name: "BetaTrust", industry: "F&B / Retail", archetype: "Cooperator" },
-    { name: "GammaMind", industry: "Technology",   archetype: "TitForTat" },
-    { name: "DeltaX",    industry: "Energy",       archetype: "Random" },
-    { name: "EpsilonAI", industry: "Healthcare",   archetype: "Adaptive" },
+    { name: "GammaMind", industry: "Technology", archetype: "TitForTat" },
+    { name: "DeltaX", industry: "Energy", archetype: "Random" },
+    { name: "EpsilonAI", industry: "Healthcare", archetype: "Adaptive" },
 ];
 
 interface Props {
@@ -299,6 +300,34 @@ export default function SpectatorMode({ onBack }: Props) {
                             <div className="text-2xl font-bold text-slate-300">{players.length}</div>
                         </div>
                     </div>
+
+                    {/* Export buttons */}
+                    {status === "completed" && history.length > 0 && (
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => exportData.download(
+                                    exportData.toCSV(history, players),
+                                    `equilibrium_${Date.now()}.csv`,
+                                    "text/csv"
+                                )}
+                                className="bg-emerald-900 hover:bg-emerald-800 text-emerald-300
+                       px-4 py-2 rounded-lg text-xs transition-colors font-semibold"
+                            >
+                                ↓ Export CSV
+                            </button>
+                            <button
+                                onClick={() => exportData.download(
+                                    exportData.toJSON(history, players),
+                                    `equilibrium_${Date.now()}.json`,
+                                    "application/json"
+                                )}
+                                className="bg-indigo-900 hover:bg-indigo-800 text-indigo-300
+                       px-4 py-2 rounded-lg text-xs transition-colors font-semibold"
+                            >
+                                ↓ Export JSON
+                            </button>
+                        </div>
+                    )}
 
                     {/* Charts */}
                     <div className="grid grid-cols-2 gap-4">

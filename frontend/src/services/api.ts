@@ -89,3 +89,44 @@ export class GameWebSocket {
     this.ws?.close();
   }
 }
+
+// ============================================================
+// EXPORT UTILITIES
+// ============================================================
+
+export const exportData = {
+
+  toCSV: (history: RoundResult[], players: Player[]): string => {
+    const headers = [
+      "round",
+      ...players.map(p => `${p.name}_payoff`),
+      ...players.map(p => `${p.name}_market_share`),
+      ...players.map(p => `${p.name}_decision`),
+      "is_nash"
+    ].join(",");
+
+    const rows = history.map(r => [
+      r.round_number,
+      ...players.map(p => r.payoffs[p.id] || 0),
+      ...players.map(p => r.market_shares[p.id] || 0),
+      ...players.map(p => r.decisions[p.id] || ""),
+      r.is_nash ? 1 : 0
+    ].join(","));
+
+    return [headers, ...rows].join("\n");
+  },
+
+  toJSON: (history: RoundResult[], players: Player[]): string => {
+    return JSON.stringify({ players, history }, null, 2);
+  },
+
+  download: (content: string, filename: string, type: string) => {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+};
