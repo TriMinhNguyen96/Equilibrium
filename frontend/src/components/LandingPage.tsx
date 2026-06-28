@@ -17,11 +17,11 @@ const INDUSTRIES = [
 ];
 
 const ARCHETYPES = [
-  { id: "Defector",    label: "Defector",    desc: "Luôn phản bội — ích kỷ tuyệt đối",           color: "text-red-400",     bg: "bg-red-950 border-red-800" },
-  { id: "Cooperator",  label: "Cooperator",  desc: "Luôn hợp tác — tin tưởng tuyệt đối",          color: "text-emerald-400", bg: "bg-emerald-950 border-emerald-800" },
-  { id: "TitForTat",   label: "Tit-for-Tat", desc: "Làm gương đối thủ — ăn miếng trả miếng",      color: "text-blue-400",    bg: "bg-blue-950 border-blue-800" },
-  { id: "Random",      label: "Random",      desc: "Ngẫu nhiên 50/50 — không đoán được",           color: "text-amber-400",   bg: "bg-amber-950 border-amber-800" },
-  { id: "Adaptive",    label: "Adaptive",    desc: "Học từ lịch sử — tối ưu theo thời gian",       color: "text-purple-400",  bg: "bg-purple-950 border-purple-800" },
+  { id: "Defector", label: "Defector", desc: "Luôn phản bội — ích kỷ tuyệt đối", color: "text-red-400", bg: "bg-red-950 border-red-800" },
+  { id: "Cooperator", label: "Cooperator", desc: "Luôn hợp tác — tin tưởng tuyệt đối", color: "text-emerald-400", bg: "bg-emerald-950 border-emerald-800" },
+  { id: "TitForTat", label: "Tit-for-Tat", desc: "Làm gương đối thủ — ăn miếng trả miếng", color: "text-blue-400", bg: "bg-blue-950 border-blue-800" },
+  { id: "Random", label: "Random", desc: "Ngẫu nhiên 50/50 — không đoán được", color: "text-amber-400", bg: "bg-amber-950 border-amber-800" },
+  { id: "Adaptive", label: "Adaptive", desc: "Học từ lịch sử — tối ưu theo thời gian", color: "text-purple-400", bg: "bg-purple-950 border-purple-800" },
 ];
 
 const AI_NAMES = ["AlphaCore", "BetaTrust", "GammaMind", "DeltaX", "EpsilonAI"];
@@ -37,6 +37,7 @@ interface AISlot {
 
 interface Props {
   onStart: (name: string, industry: string, aiSlots: AISlot[]) => void;
+  onSpectate: () => void;
   loading?: boolean;
 }
 
@@ -44,7 +45,7 @@ interface Props {
 // UI
 // ============================================================
 
-export default function LandingPage({ onStart, loading }: Props) {
+export default function LandingPage({ onStart, onSpectate, loading }: Props) {
   const [name, setName] = useState("Player");
   const [industry, setIndustry] = useState("Technology");
   const [nCompetitors, setNCompetitors] = useState(3);
@@ -191,6 +192,13 @@ export default function LandingPage({ onStart, loading }: Props) {
                      py-4 rounded-xl transition-colors tracking-widest uppercase text-sm"
         >
           {loading ? "Đang khởi tạo..." : "Bắt đầu →"}
+        </button>
+        <button
+          onClick={onSpectate}
+          className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold
+             py-3 rounded-xl transition-colors tracking-widest uppercase text-sm"
+        >
+          👁 Spectator Mode — Xem AI vs AI
         </button>
       </div>
 

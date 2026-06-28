@@ -244,3 +244,112 @@ async def websocket_endpoint(websocket: WebSocket, game_id: str):
 
     except WebSocketDisconnect:
         pass
+
+@app.post("/game/spectate")
+def api_create_spectate(config: GameConfig):
+    """
+    Tạo game AI vs AI để spectate
+    Không có human player — chỉ có AI agents
+    """
+    import uuid
+    game_id = str(uuid.uuid4())[:8]
+
+    ai_names = ["AlphaCore", "BetaTrust", "GammaMind", "DeltaX", "EpsilonAI"]
+    ai_industries = ["Finance", "F&B / Retail", "Technology", "Energy", "Healthcare"]
+    ai_archetypes_default = (ARCHETYPES * 2)[:config.n_competitors]
+
+    players = []
+    agents = []
+
+    for i in range(config.n_competitors):
+        if config.ai_slots and i < len(config.ai_slots):
+            slot = config.ai_slots[i]
+            a_name = slot.get("name", ai_names[i])
+            a_industry = slot.get("industry", ai_industries[i])
+            a_archetype = slot.get("archetype", ai_archetypes_default[i])
+        else:
+            a_name = ai_names[i]
+            a_industry = ai_industries[i]
+            a_archetype = ai_archetypes_default[i]
+
+        players.append(Player(
+            id=f"ai_{i}",
+            name=a_name,
+            industry=a_industry,
+            is_human=False
+        ))
+        agents.append(Agent(
+            id=f"ai_{i}",
+            name=a_name,
+            archetype=a_archetype
+        ))
+
+    engine = RoundEngine(players)
+    games[game_id] = {
+        "engine": engine,
+        "agents": agents,
+        "config": config.dict(),
+        "status": "spectate"
+    }
+
+    return {
+        "game_id": game_id,
+        "players": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "industry": p.industry,
+                "is_human": p.is_human,
+                "market_share": p.market_share
+            }
+            for p in players
+        ]
+    }
+
+@app.websocket("/ws/spectate/{game_id}")
+async def websocket_spectate(websocket: WebSocket, game_id: str):
+    """
+    WebSocket cho Spectator mode
+    Server tự động chạy rounds, client chỉ nhận data
+    """
+    await websocket.accept()
+
+    if game_id not in games:
+        await websocket.send_json({"error": "Game not found"})
+        await websocket.close()
+        return
+
+    try:
+        game = games[game_id]
+        engine: RoundEngine = game["engine"]
+        agents: list[Agent] = game["agents"]
+
+        # Nhận config từ client (speed, n_rounds)
+        config_data = await websocket.receive_json()
+        n_rounds = config_data.get("n_rounds", 20)
+        speed_ms = config_data.get("speed_ms", 1000)  # delay giữa các rounds
+
+        for _ in range(n_rounds):
+            # AI tự quyết định
+            decisions = {agent.id: agent.choose_strategy() for agent in agents}
+
+            # Chạy round
+            result = engine.run_round(decisions)
+
+            # Update agents
+            for agent in agents:
+                payoff = result.payoffs.get(agent.id, 0)
+                others = [decisions[a.id] for a in agents if a.id != agent.id]
+                agent.update(decisions[agent.id], others[0] if others else "Cooperate", payoff)
+
+            # Gửi kết quả
+            await websocket.send_json(serialize_result(result, engine.players))
+
+            # Delay giữa các rounds
+            await asyncio.sleep(speed_ms / 1000)
+
+        # Gửi signal kết thúc
+        await websocket.send_json({"status": "completed", "total_rounds": n_rounds})
+
+    except WebSocketDisconnect:
+        pass
