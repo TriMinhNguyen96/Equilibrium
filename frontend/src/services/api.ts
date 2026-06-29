@@ -1,4 +1,4 @@
-const BASE_URL = "https://debrief-gradient-mardi.ngrok-free.dev";
+const BASE_URL = "https://equilibrium-backend-p5st.onrender.com";
 
 const NGROK_HEADERS = {
   "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export class GameWebSocket {
   }
 
   connect(onMessage: (result: RoundResult) => void) {
-    this.ws = new WebSocket(`wss://debrief-gradient-mardi.ngrok-free.dev/ws/${this.gameId}`);
+    this.ws = new WebSocket(`wss://equilibrium-backend-p5st.onrender.com/ws/${this.gameId}`);
     this.ws.onmessage = (e) => onMessage(JSON.parse(e.data));
     this.ws.onerror = (e) => console.error("WebSocket error:", e);
   }
@@ -210,7 +210,7 @@ export class RoomWebSocket {
   private ws: WebSocket | null = null;
 
   connect(room_code: string, onUpdate: (room: RoomState) => void, onGameStart: (data: { game_id: string; players: Player[] }) => void) {
-    this.ws = new WebSocket(`wss://debrief-gradient-mardi.ngrok-free.dev/ws/room/${room_code}`);
+    this.ws = new WebSocket(`wss://equilibrium-backend-p5st.onrender.com/ws/room/${room_code}`);
 
     this.ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
