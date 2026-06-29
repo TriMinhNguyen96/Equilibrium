@@ -38,6 +38,7 @@ interface AISlot {
 interface Props {
   onStart: (name: string, industry: string, aiSlots: AISlot[]) => void;
   onSpectate: () => void;
+  onMultiplayer: () => void;
   loading?: boolean;
 }
 
@@ -45,7 +46,7 @@ interface Props {
 // UI
 // ============================================================
 
-export default function LandingPage({ onStart, onSpectate, loading }: Props) {
+export default function LandingPage({ onStart, onSpectate, onMultiplayer, loading }: Props) {
   const [name, setName] = useState("Player");
   const [industry, setIndustry] = useState("Technology");
   const [nCompetitors, setNCompetitors] = useState(3);
@@ -192,6 +193,14 @@ export default function LandingPage({ onStart, onSpectate, loading }: Props) {
                      py-4 rounded-xl transition-colors tracking-widest uppercase text-sm"
         >
           {loading ? "Đang khởi tạo..." : "Bắt đầu →"}
+        </button>
+        <button
+          onClick={onMultiplayer}
+          className="w-full bg-indigo-950 hover:bg-indigo-900 border border-indigo-700
+                     text-indigo-300 font-semibold py-3 rounded-xl transition-colors
+                     tracking-widest uppercase text-sm"
+        >
+          ⚔ Multiplayer — PvP Real-time
         </button>
         <button
           onClick={onSpectate}
