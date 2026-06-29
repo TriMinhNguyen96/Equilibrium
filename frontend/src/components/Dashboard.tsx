@@ -36,10 +36,32 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
     const [lastResult, setLastResult] = useState<RoundResult | null>(null);
     const [strategy, setStrategy] = useState("");
     const [thinking, setThinking] = useState(false);
+    const [countdown, setCountdown] = useState<number | null>(null);
+    const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const wsRef = useRef<GameWebSocket | null>(null);
 
+    const startCountdown = () => {
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        setCountdown(60);
+        countdownRef.current = setInterval(() => {
+            setCountdown(prev => {
+                if (prev === null || prev <= 1) {
+                    clearInterval(countdownRef.current!);
+                    setCountdown(null);
+                    setStrategy(s => {
+                        const finalStrategy = s.trim() || "Cooperate";
+                        setThinking(true);
+                        wsRef.current?.send(finalStrategy);
+                        return "";
+                    });
+                    return null;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
     useEffect(() => {
-        // Connect WebSocket
         wsRef.current = new GameWebSocket(gameId);
         wsRef.current.connect((result) => {
             setLastResult(result);
@@ -47,8 +69,12 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
             setRound(result.round_number);
             setHistory(prev => [...prev, result]);
             setThinking(false);
+            startCountdown();
         });
-        return () => wsRef.current?.disconnect();
+        return () => {
+            wsRef.current?.disconnect();
+            if (countdownRef.current) clearInterval(countdownRef.current);
+        };
     }, [gameId]);
 
     const handleSubmit = () => {
@@ -271,9 +297,11 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                         disabled={thinking || !strategy.trim()}
                         className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800
                        disabled:text-slate-600 text-white px-6 py-3 rounded-lg
-                       transition-colors text-sm font-semibold"
+                       transition-colors text-sm font-semibold min-w-[100px]"
                     >
-                        Submit →
+                        {countdown !== null
+                            ? <span className={countdown <= 10 ? "text-red-300" : ""}>{countdown}s →</span>
+                            : "Submit →"}
                     </button>
                 </div>
                 <div className="flex gap-2 mt-2">
