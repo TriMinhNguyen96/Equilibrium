@@ -3,7 +3,7 @@
 // Xem AI vs AI chạy real-time — Research tool
 // ============================================================
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import {
     LineChart, Line, AreaChart, Area,
     XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -17,7 +17,7 @@ import { exportData } from "../services/api";
 // ============================================================
 
 const COLORS = ["#6366f1", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444"];
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "https://equilibrium-backend-p5st.onrender.com";
 
 const ARCHETYPES = [
     { id: "Defector", label: "Defector", color: "#ef4444", bg: "bg-red-950 border-red-800" },
@@ -75,7 +75,7 @@ export default function SpectatorMode({ onBack }: Props) {
         setStatus("running");
 
         // Connect WebSocket
-        const ws = new WebSocket(`ws://localhost:8000/ws/spectate/${data.game_id}`);
+        const ws = new WebSocket(`wss://equilibrium-backend-p5st.onrender.com/ws/spectate/${data.game_id}`);
         wsRef.current = ws;
 
         ws.onopen = () => {
@@ -384,7 +384,7 @@ export default function SpectatorMode({ onBack }: Props) {
                                         </Pie>
                                         <Tooltip
                                             contentStyle={{ background: "#1e293b", border: "none", borderRadius: 8 }}
-                                            formatter={(v: number) => [`${v.toFixed(1)}%`]}
+                                            formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`]}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>

@@ -95,7 +95,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
       try {
         const updated = await roomApi.getRoom(roomCode);
         setRoom(updated);
-        if (updated.status === "playing" && (updated as any).game_id) {
+        if ((updated.status as string) === "playing" && (updated as any).game_id) {
           const roomPlayers = updated.players.map((p: any) => ({
             id: p.id ?? p.player_id,
             name: p.name,

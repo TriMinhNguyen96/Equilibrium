@@ -9,7 +9,7 @@ import {
     ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
 import type { Player, RoundResult } from "../services/api";
-import { api, GameWebSocket } from "../services/api";
+import { GameWebSocket } from "../services/api";
 import TheoryTip from "./Tooltip";
 
 // ============================================================
@@ -111,7 +111,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                             </Pie>
                             <Tooltip
                                 contentStyle={{ background: "#1e293b", border: "none", borderRadius: 8 }}
-                                formatter={(v: number) => [`${v.toFixed(1)}%`]}
+                                formatter={(v) => [`${Number(v ?? 0).toFixed(1)}%`]}
                             />
                         </PieChart>
                     </ResponsiveContainer>
@@ -156,7 +156,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                         Competitor Behavior
                     </div>
                     <div className="space-y-4">
-                        {competitors.map((c, i) => {
+                        {competitors.map((c) => {
                             const cHistory = (c.strategy_history || []).slice(-5);
                             const defectCount = cHistory.filter(s => s === "Defect").length;
                             const defectPct = cHistory.length > 0
