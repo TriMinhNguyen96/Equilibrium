@@ -9,7 +9,7 @@ import {
     ResponsiveContainer, PieChart, Pie, Cell
 } from "recharts";
 import type { Player, RoundResult } from "../services/api";
-import { GameWebSocket } from "../services/api";
+import { GameWebSocket, RoomWebSocket } from "../services/api";
 import TheoryTip from "./Tooltip";
 
 // ============================================================
@@ -24,13 +24,15 @@ interface Props {
     playerName: string;
     industry: string;
     timeLimit?: number | null; // seconds, null = no limit
+    roomCode?: string | null;
+    myPlayerId?: string | null;
 }
 
 // ============================================================
 // UI
 // ============================================================
 
-export default function Dashboard({ gameId, players: initialPlayers, playerName, industry, timeLimit = null }: Props) {
+export default function Dashboard({ gameId, players: initialPlayers, playerName, industry, timeLimit = null, roomCode = null, myPlayerId = null }: Props) {
     const [players, setPlayers] = useState<Player[]>(initialPlayers);
     const [history, setHistory] = useState<RoundResult[]>([]);
     const [round, setRound] = useState(0);
@@ -40,7 +42,11 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
     const [countdown, setCountdown] = useState<number | null>(null);
     const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const [showReveal, setShowReveal] = useState(false);
+    const [waitingForOthers, setWaitingForOthers] = useState(false);
+    const [submittedCount, setSubmittedCount] = useState({ submitted: 0, total: 0 });
+    const isMultiplayer = !!(roomCode && myPlayerId);
     const wsRef = useRef<GameWebSocket | null>(null);
+    const roomWsRef = useRef<RoomWebSocket | null>(null);
 
     const startCountdown = () => {
         if (timeLimit === null) return;
@@ -54,7 +60,11 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                     setStrategy(s => {
                         const finalStrategy = s.trim() || "Cooperate";
                         setThinking(true);
-                        wsRef.current?.send(finalStrategy);
+                        if (isMultiplayer) {
+                            roomWsRef.current?.sendDecision(finalStrategy);
+                        } else {
+                            wsRef.current?.send(finalStrategy);
+                        }
                         return "";
                     });
                     return null;
@@ -65,25 +75,58 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
     };
 
     useEffect(() => {
-        wsRef.current = new GameWebSocket(gameId);
-        wsRef.current.connect((result) => {
-            setLastResult(result);
-            setPlayers(result.players);
-            setRound(result.round_number);
-            setHistory(prev => [...prev, result]);
-            setThinking(false);
-            setShowReveal(true);
-        });
-        return () => {
-            wsRef.current?.disconnect();
-            if (countdownRef.current) clearInterval(countdownRef.current);
-        };
+        if (isMultiplayer) {
+            const rws = new RoomWebSocket();
+            roomWsRef.current = rws;
+            rws.connect(
+                roomCode!,
+                () => { /* room_update — not used in-game */ },
+                () => { /* game_start — already in game */ },
+                myPlayerId!,
+                (result) => {
+                    setLastResult(result);
+                    setPlayers(result.players);
+                    setRound(result.round_number);
+                    setHistory(prev => [...prev, result]);
+                    setThinking(false);
+                    setWaitingForOthers(false);
+                    setShowReveal(true);
+                },
+                (submitted, total) => {
+                    setWaitingForOthers(true);
+                    setThinking(false);
+                    setSubmittedCount({ submitted: submitted.length, total });
+                }
+            );
+            return () => {
+                rws.disconnect();
+                if (countdownRef.current) clearInterval(countdownRef.current);
+            };
+        } else {
+            wsRef.current = new GameWebSocket(gameId);
+            wsRef.current.connect((result) => {
+                setLastResult(result);
+                setPlayers(result.players);
+                setRound(result.round_number);
+                setHistory(prev => [...prev, result]);
+                setThinking(false);
+                setShowReveal(true);
+            });
+            return () => {
+                wsRef.current?.disconnect();
+                if (countdownRef.current) clearInterval(countdownRef.current);
+            };
+        }
     }, [gameId]);
 
     const handleSubmit = () => {
         if (!strategy.trim()) return;
         setThinking(true);
-        wsRef.current?.send(strategy);
+        if (isMultiplayer) {
+            roomWsRef.current?.sendDecision(strategy);
+        } else {
+            wsRef.current?.send(strategy);
+        }
         setStrategy("");
     };
 
@@ -368,7 +411,11 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                     Chief Strategy Advisor
                 </div>
                 <div className="bg-slate-950 rounded-lg p-3 mb-3 min-h-16 text-sm text-slate-400">
-                    {thinking ? (
+                    {waitingForOthers ? (
+                        <span className="text-amber-400 animate-pulse">
+                            Waiting for other players... ({submittedCount.submitted}/{submittedCount.total} submitted)
+                        </span>
+                    ) : thinking ? (
                         <span className="text-indigo-400 animate-pulse">Analyzing market...</span>
                     ) : lastResult ? (
                         <span>
@@ -396,12 +443,14 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                     />
                     <button
                         onClick={handleSubmit}
-                        disabled={thinking || !strategy.trim()}
+                        disabled={thinking || !strategy.trim() || waitingForOthers}
                         className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800
                        disabled:text-slate-600 text-white px-6 py-3 rounded-lg
                        transition-colors text-sm font-semibold min-w-[100px]"
                     >
-                        {countdown !== null
+                        {waitingForOthers
+                            ? "Waiting..."
+                            : countdown !== null
                             ? <span className={countdown <= 10 ? "text-red-300" : ""}>{countdown}s →</span>
                             : "Submit →"}
                     </button>

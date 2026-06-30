@@ -210,16 +210,32 @@ export const roomApi = {
 export class RoomWebSocket {
   private ws: WebSocket | null = null;
 
-  connect(room_code: string, onUpdate: (room: RoomState) => void, onGameStart: (data: { game_id: string; players: Player[] }) => void) {
-    this.ws = new WebSocket(`wss://equilibrium-backend-p5st.onrender.com/ws/room/${room_code}`);
+  connect(
+    room_code: string,
+    onUpdate: (room: RoomState) => void,
+    onGameStart: (data: { game_id: string; players: Player[] }) => void,
+    player_id?: string,
+    onRoundResult?: (result: RoundResult) => void,
+    onWaiting?: (submitted: string[], total: number) => void
+  ) {
+    const path = player_id ? `${room_code}/${player_id}` : room_code;
+    this.ws = new WebSocket(`wss://equilibrium-backend-p5st.onrender.com/ws/room/${path}`);
 
     this.ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if (msg.type === "room_update") onUpdate(msg.room);
       if (msg.type === "game_start") onGameStart(msg);
+      if (msg.type === "round_result" && onRoundResult) onRoundResult(msg.result);
+      if (msg.type === "waiting" && onWaiting) onWaiting(msg.submitted, msg.total);
     };
 
     this.ws.onerror = (e) => console.error("Room WebSocket error:", e);
+  }
+
+  sendDecision(strategy: string) {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ type: "decision", strategy }));
+    }
   }
 
   disconnect() {

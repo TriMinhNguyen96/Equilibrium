@@ -14,7 +14,15 @@ type LobbyMode = "menu" | "create" | "join" | "waiting";
 
 interface Props {
   onBack: () => void;
-  onGameStart: (gameId: string, players: Player[], playerName: string, industry: string, timeLimit: number | null) => void;
+  onGameStart: (
+    gameId: string,
+    players: Player[],
+    playerName: string,
+    industry: string,
+    timeLimit: number | null,
+    roomCode?: string,
+    myPlayerId?: string
+  ) => void;
 }
 
 const TIME_OPTIONS = [
@@ -115,7 +123,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
             strategy_history: [],
           }));
           const me = updated.players.find((p: any) => ((p as any).id ?? p.player_id) === myPlayerId);
-          onGameStart((updated as any).game_id, roomPlayers, me?.name ?? "", me?.industry ?? "", (updated as any).time_limit ?? null);
+          onGameStart((updated as any).game_id, roomPlayers, me?.name ?? "", me?.industry ?? "", (updated as any).time_limit ?? null, roomCode, myPlayerId);
         }
       } catch { /* silent */ }
     };

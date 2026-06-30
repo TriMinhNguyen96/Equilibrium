@@ -27,6 +27,8 @@ export default function App() {
   const [industry, setIndustry] = useState("Technology");
   const [loading, setLoading] = useState(false);
   const [timeLimit, setTimeLimit] = useState<number | null>(null);
+  const [roomCode, setRoomCode] = useState<string | null>(null);
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
   // Pending solo game config (waiting for time limit selection)
   const [pendingSolo, setPendingSolo] = useState<{ name: string; ind: string; aiSlots: AISlot[] } | null>(null);
@@ -40,6 +42,8 @@ export default function App() {
   const handleSoloTimeSelected = async (seconds: number | null) => {
     if (!pendingSolo) return;
     setTimeLimit(seconds);
+    setRoomCode(null);
+    setMyPlayerId(null);
     setLoading(true);
     try {
       const result = await api.createGame({
@@ -62,12 +66,22 @@ export default function App() {
   };
 
   // ── Multiplayer game start (from RoomLobby) ──
-  const handleRoomGameStart = (gId: string, ps: Player[], pName: string, ind: string, roomTimeLimit: number | null) => {
+  const handleRoomGameStart = (
+    gId: string,
+    ps: Player[],
+    pName: string,
+    ind: string,
+    roomTimeLimit: number | null,
+    rCode?: string,
+    pId?: string
+  ) => {
     setGameId(gId);
     setPlayers(ps);
     setPlayerName(pName);
     setIndustry(ind);
     setTimeLimit(roomTimeLimit);
+    setRoomCode(rCode ?? null);
+    setMyPlayerId(pId ?? null);
     setScreen("game");
   };
 
@@ -94,6 +108,8 @@ export default function App() {
           playerName={playerName}
           industry={industry}
           timeLimit={timeLimit}
+          roomCode={roomCode}
+          myPlayerId={myPlayerId}
         />
       )}
       {screen === "spectator" && (
