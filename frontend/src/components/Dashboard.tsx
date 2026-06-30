@@ -316,7 +316,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                                     (history[history.length - 1].payoffs["human"] || 0) >
                                     (history[history.length - 2].payoffs["human"] || 0)
                                         ? <span className="text-emerald-400">↑ Up</span>
-                                        : (history[history.length - 1].payoffs["human"] || 0) 
+                                        : (history[history.length - 1].payoffs["human"] || 0) < 
                                           (history[history.length - 2].payoffs["human"] || 0)
                                         ? <span className="text-red-400">↓ Down</span>
                                         : <span className="text-slate-400">→ Stable</span>
