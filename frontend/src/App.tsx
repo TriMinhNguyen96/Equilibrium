@@ -8,10 +8,11 @@ import LandingPage from "./components/LandingPage";
 import SpectatorMode from "./components/SpectatorMode";
 import RoomLobby from "./components/RoomLobby";
 import TimeLimitPicker from "./components/TimeLimitPicker";
+import RoundLimitPicker from "./components/RoundLimitPicker";
 import { api } from "./services/api";
 import type { Player } from "./services/api";
 
-type Screen = "landing" | "time-picker-solo" | "time-picker-room" | "game" | "spectator" | "room";
+type Screen = "landing" | "time-picker-solo" | "round-picker-solo" | "time-picker-room" | "game" | "spectator" | "room";
 
 interface AISlot {
   name: string;
@@ -27,6 +28,7 @@ export default function App() {
   const [industry, setIndustry] = useState("Technology");
   const [loading, setLoading] = useState(false);
   const [timeLimit, setTimeLimit] = useState<number | null>(null);
+  const [roundLimit, setRoundLimit] = useState<number | null>(null);
   const [roomCode, setRoomCode] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
@@ -39,9 +41,15 @@ export default function App() {
     setScreen("time-picker-solo");
   };
 
-  const handleSoloTimeSelected = async (seconds: number | null) => {
+  const handleSoloTimeSelected = (seconds: number | null) => {
     if (!pendingSolo) return;
     setTimeLimit(seconds);
+    setScreen("round-picker-solo");
+  };
+
+  const handleSoloRoundSelected = async (rounds: number | null) => {
+    if (!pendingSolo) return;
+    setRoundLimit(rounds);
     setRoomCode(null);
     setMyPlayerId(null);
     setLoading(true);
@@ -99,6 +107,12 @@ export default function App() {
         <TimeLimitPicker
           onSelect={handleSoloTimeSelected}
           onBack={() => setScreen("landing")}
+        />
+      )}
+      {screen === "round-picker-solo" && (
+        <RoundLimitPicker
+          onSelect={handleSoloRoundSelected}
+          onBack={() => setScreen("time-picker-solo")}
         />
       )}
       {screen === "game" && (
