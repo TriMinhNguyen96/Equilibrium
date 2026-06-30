@@ -125,7 +125,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
 
   // ── Create Room ──
   const handleCreate = async () => {
-    if (!name.trim()) { setError("Nhập tên đi mày"); return; }
+    if (!name.trim()) { setError("Please enter your name"); return; }
     setLoading(true); setError("");
     try {
       const res = await roomApi.createRoom({ host_name: name.trim(), industry });
@@ -134,7 +134,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
       setRoom(res.room);
       setMode("waiting");
     } catch {
-      setError("Không tạo được phòng — kiểm tra backend");
+      setError("Failed to create room — check backend connection");
     } finally {
       setLoading(false);
     }
@@ -142,8 +142,8 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
 
   // ── Join Room ──
   const handleJoin = async () => {
-    if (!name.trim()) { setError("Nhập tên đi mày"); return; }
-    if (!joinCode.trim()) { setError("Nhập room code đi"); return; }
+    if (!name.trim()) { setError("Please enter your name"); return; }
+    if (!joinCode.trim()) { setError("Please enter a room code"); return; }
     setLoading(true); setError("");
     try {
       const res = await roomApi.joinRoom({ room_code: joinCode.trim().toUpperCase(), player_name: name.trim(), industry });
@@ -152,7 +152,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
       setRoom(res.room);
       setMode("waiting");
     } catch {
-      setError("Không tìm thấy phòng — kiểm tra lại room code");
+      setError("Room not found — check the room code");
     } finally {
       setLoading(false);
     }
@@ -175,10 +175,10 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
         total_payoff: 0,
         strategy_history: [],
       }));
-      if (gamePlayers.length === 0) { setError("Backend không trả players"); setLoading(false); return; }
+      if (gamePlayers.length === 0) { setError("Backend did not return players"); setLoading(false); return; }
       onGameStart(res.game_id, gamePlayers, me?.name ?? name, me?.industry ?? industry);
     } catch {
-      setError("Không start được — cần ít nhất 2 người");
+      setError("Failed to start — need at least 2 players");
     } finally {
       setLoading(false);
     }
@@ -192,7 +192,6 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
   };
 
   const isHost = room?.players.find(p => (p.player_id ?? (p as any).id) === myPlayerId)?.is_host ?? false;
-  console.log("myPlayerId:", myPlayerId, "players:", JSON.stringify(room?.players));
   const canStart = isHost && (room?.players.length ?? 0) >= 2;
 
   // ============================================================
@@ -323,7 +322,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
 
         {/* Room Code */}
         <div className="bg-gray-900 border border-gray-700 rounded p-4 text-center">
-          <p className="text-xs text-gray-500 mb-2">ROOM CODE — share với bạn bè</p>
+          <p className="text-xs text-gray-500 mb-2">ROOM CODE — share with friends</p>
           <div className="flex items-center justify-center gap-3">
             <span className="text-3xl font-bold tracking-[0.3em] text-indigo-400">{roomCode}</span>
             <button onClick={handleCopy}
