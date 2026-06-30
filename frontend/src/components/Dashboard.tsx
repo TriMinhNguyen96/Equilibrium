@@ -38,6 +38,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
     const [thinking, setThinking] = useState(false);
     const [countdown, setCountdown] = useState<number | null>(null);
     const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [showReveal, setShowReveal] = useState(false);
     const wsRef = useRef<GameWebSocket | null>(null);
 
     const startCountdown = () => {
@@ -69,7 +70,11 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
             setRound(result.round_number);
             setHistory(prev => [...prev, result]);
             setThinking(false);
-            startCountdown();
+            setShowReveal(true);
+            setTimeout(() => {
+                setShowReveal(false);
+                startCountdown();
+            }, 1800);
         });
         return () => {
             wsRef.current?.disconnect();
@@ -97,6 +102,24 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
 
     return (
         <div className="min-h-screen bg-[#0a0e1a] p-6">
+
+            {showReveal && lastResult && (
+                <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center animate-fade-in">
+                    <div className="bg-slate-900 border-2 border-indigo-500 rounded-2xl p-8 text-center max-w-md animate-reveal-pop">
+                        <div className="text-xs text-indigo-400 uppercase tracking-widest mb-2">
+                            Round {lastResult.round_number} kết thúc
+                        </div>
+                        <div className={`text-3xl font-bold mb-3 ${lastResult.is_nash ? "text-emerald-400" : "text-amber-400"}`}>
+                            {lastResult.is_nash ? "✅ Nash Equilibrium!" : "Thị trường biến động"}
+                        </div>
+                        <div className="text-slate-400 text-sm mb-1">Payoff của mày</div>
+                        <div className="text-4xl font-bold text-white">
+                            {lastResult.payoffs["human"] || 0}
+                        </div>
+                    </div>
+                </div>
+            )}
+</parameter>
 
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
