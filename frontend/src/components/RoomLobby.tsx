@@ -193,7 +193,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
         strategy_history: [],
       }));
       if (gamePlayers.length === 0) { setError("Backend did not return players"); setLoading(false); return; }
-      onGameStart(res.game_id, gamePlayers, me?.name ?? name, me?.industry ?? industry, roomTimeLimit);
+      onGameStart(res.game_id, gamePlayers, me?.name ?? name, me?.industry ?? industry, roomTimeLimit, roomCode, myPlayerId);
     } catch {
       setError("Failed to start — need at least 2 players");
     } finally {
