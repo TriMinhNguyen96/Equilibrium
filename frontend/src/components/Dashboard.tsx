@@ -1,6 +1,6 @@
 // ============================================================
 // EQUILIBRIUM — Dashboard
-// BI Observer Screen — data thật từ FastAPI
+// BI Observer Screen — live data from FastAPI
 // ============================================================
 
 import { useState, useEffect, useRef } from "react";
@@ -112,12 +112,12 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                             ×
                         </button>
                         <div className="text-xs text-indigo-400 uppercase tracking-widest mb-2">
-                            Round {lastResult.round_number} kết thúc
+                            Round {lastResult.round_number} complete
                         </div>
                         <div className={`text-3xl font-bold mb-3 ${lastResult.is_nash ? "text-emerald-400" : "text-amber-400"}`}>
-                            {lastResult.is_nash ? "✅ Nash Equilibrium!" : "Thị trường biến động"}
+                            {lastResult.is_nash ? "✅ Nash Equilibrium!" : "Market shifted"}
                         </div>
-                        <div className="text-slate-400 text-sm mb-1">Payoff của mày</div>
+                        <div className="text-slate-400 text-sm mb-1">Your payoff</div>
                         <div className="text-4xl font-bold text-white">
                             {lastResult.payoffs["human"] || 0}
                         </div>
@@ -128,7 +128,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                             }}
                             className="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
                         >
-                            Tiếp tục →
+                            Continue →
                         </button>
                     </div>
                 </div>
@@ -207,7 +207,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                         </ResponsiveContainer>
                     ) : (
                         <div className="h-52 flex items-center justify-center text-slate-600 text-sm">
-                            Chưa có data — hãy chơi round đầu tiên
+                            No data yet — play the first round
                         </div>
                     )}
                 </div>
@@ -239,7 +239,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                                                 {s === "Cooperate" ? "C" : "D"}
                                             </div>
                                         )) : (
-                                            <div className="text-xs text-slate-600">Chưa có lịch sử</div>
+                                            <div className="text-xs text-slate-600">No history yet</div>
                                         )}
                                     </div>
                                     <div className="flex justify-between text-xs mb-1">
@@ -315,11 +315,11 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                                 {history.length >= 2 ? (
                                     (history[history.length - 1].payoffs["human"] || 0) >
                                     (history[history.length - 2].payoffs["human"] || 0)
-                                        ? <span className="text-emerald-400">↑ Tăng</span>
-                                        : (history[history.length - 1].payoffs["human"] || 0)< 
+                                        ? <span className="text-emerald-400">↑ Up</span>
+                                        : (history[history.length - 1].payoffs["human"] || 0) 
                                           (history[history.length - 2].payoffs["human"] || 0)
-                                        ? <span className="text-red-400">↓ Giảm</span>
-                                        : <span className="text-slate-400">→ Ổn định</span>
+                                        ? <span className="text-red-400">↓ Down</span>
+                                        : <span className="text-slate-400">→ Stable</span>
                                 ) : (
                                     <span className="text-slate-600">—</span>
                                 )}
@@ -341,7 +341,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                         </div>
                     </div>
                     <div>
-                        <div className="text-xs text-slate-600 mb-2">Strategy History (5 round gần nhất)</div>
+                        <div className="text-xs text-slate-600 mb-2">Strategy History (last 5 rounds)</div>
                         <div className="flex gap-1">
                             {(humanPlayer.strategy_history || []).slice(-5).length > 0 ? (
                                 (humanPlayer.strategy_history || []).slice(-5).map((s, j) => (
@@ -353,7 +353,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-xs text-slate-600">Chưa có lịch sử</div>
+                                <div className="text-xs text-slate-600">No history yet</div>
                             )}
                         </div>
                     </div>
@@ -367,18 +367,18 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                 </div>
                 <div className="bg-slate-950 rounded-lg p-3 mb-3 min-h-16 text-sm text-slate-400">
                     {thinking ? (
-                        <span className="text-indigo-400 animate-pulse">Đang phân tích thị trường...</span>
+                        <span className="text-indigo-400 animate-pulse">Analyzing market...</span>
                     ) : lastResult ? (
                         <span>
-                            Round {lastResult.round_number} kết thúc.
+                            Round {lastResult.round_number} complete.
                             {lastResult.is_nash
-                                ? " ✅ Đây là Nash Equilibrium."
-                                : " Thị trường chưa đạt Nash Equilibrium."}
-                            {" "}Payoff của mày: {lastResult.payoffs["human"] || 0}.
-                            {" "}Mày muốn làm gì round tiếp theo?
+                                ? " ✅ This is Nash Equilibrium."
+                                : " Market hasn't reached Nash Equilibrium."}
+                            {" "}Your payoff: {lastResult.payoffs["human"] || 0}.
+                            {" "}What's your move for next round?
                         </span>
                     ) : (
-                        <span>Chào mừng đến với EQUILIBRIUM. Nhập chiến lược để bắt đầu round đầu tiên.</span>
+                        <span>Welcome to EQUILIBRIUM. Enter your strategy to start the first round.</span>
                     )}
                 </div>
                 <div className="flex gap-2">
@@ -387,7 +387,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                         value={strategy}
                         onChange={e => setStrategy(e.target.value)}
                         onKeyDown={e => e.key === "Enter" && handleSubmit()}
-                        placeholder='Nhập chiến lược (ví dụ: "Cooperate" hoặc "Defect" hoặc mô tả ý định...'
+                        placeholder='Enter your strategy (e.g. "Cooperate" or "Defect" or describe your intent...'
                         className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-3
                        text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500
                        transition-colors text-sm"
