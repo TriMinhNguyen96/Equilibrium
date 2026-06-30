@@ -39,6 +39,7 @@ app.add_middleware(
 
 games: dict = {}
 rooms: dict = {}
+room_connections: dict = {}  # room_code -> {player_id: websocket}
 
 class GameConfig(BaseModel):
     player_name: str
@@ -345,6 +346,11 @@ async def websocket_room(websocket: WebSocket, room_code: str, player_id: str):
         await websocket.close()
         return
     room = rooms[room_code]
+
+    if room_code not in room_connections:
+        room_connections[room_code] = {}
+    room_connections[room_code][player_id] = websocket
+
     await websocket.send_json({"type": "room_update", "room": room})
     try:
         while True:
@@ -354,7 +360,7 @@ async def websocket_room(websocket: WebSocket, room_code: str, player_id: str):
                 for p in room["players"]:
                     if p["id"] == player_id:
                         p["is_ready"] = True
-                await websocket.send_json({"type": "room_update", "room": room})
+                await broadcast_room(room_code, {"type": "room_update", "room": room})
             elif msg_type == "decision":
                 if room["status"] != "playing" or not room["game_id"]:
                     continue
@@ -374,12 +380,27 @@ async def websocket_room(websocket: WebSocket, room_code: str, player_id: str):
                         payoff = result.payoffs.get(agent.id, 0)
                         agent.update(decisions[agent.id], decisions.get("human_0", "Cooperate"), payoff)
                     room["round_decisions"] = {}
-                    await websocket.send_json({"type": "round_result", "result": serialize_result(result, engine.players)})
+                    await broadcast_room(room_code, {"type": "round_result", "result": serialize_result(result, engine.players)})
                 else:
                     submitted = list(room["round_decisions"].keys())
-                    await websocket.send_json({"type": "waiting", "submitted": submitted, "total": len(human_ids)})
+                    await broadcast_room(room_code, {"type": "waiting", "submitted": submitted, "total": len(human_ids)})
     except WebSocketDisconnect:
         room["players"] = [p for p in room["players"] if p["id"] != player_id]
+        if room_code in room_connections and player_id in room_connections[room_code]:
+            del room_connections[room_code][player_id]
+
+
+async def broadcast_room(room_code: str, message: dict):
+    if room_code not in room_connections:
+        return
+    dead = []
+    for pid, ws in room_connections[room_code].items():
+        try:
+            await ws.send_json(message)
+        except Exception:
+            dead.append(pid)
+    for pid in dead:
+        del room_connections[room_code][pid]
 
 # ============================================================
 # SERVE REACT FRONTEND (must be last)
