@@ -93,7 +93,8 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                     setShowReveal(true);
                 },
                 (submitted, total) => {
-                    setWaitingForOthers(true);
+                    const iHaveSubmitted = submitted.includes(myPlayerId!);
+                    setWaitingForOthers(iHaveSubmitted);
                     setThinking(false);
                     setSubmittedCount({ submitted: submitted.length, total });
                 }
