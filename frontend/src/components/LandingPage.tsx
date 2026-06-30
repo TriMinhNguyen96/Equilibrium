@@ -1,6 +1,6 @@
 // ============================================================
 // EQUILIBRIUM — Landing Page
-// Màn hình setup game — chọn ngành, số AI, archetype
+// Game setup screen — choose industry, AI count, archetype
 // ============================================================
 
 import { useState } from "react";
@@ -17,11 +17,11 @@ const INDUSTRIES = [
 ];
 
 const ARCHETYPES = [
-  { id: "Defector", label: "Defector", desc: "Luôn phản bội — ích kỷ tuyệt đối", color: "text-red-400", bg: "bg-red-950 border-red-800" },
-  { id: "Cooperator", label: "Cooperator", desc: "Luôn hợp tác — tin tưởng tuyệt đối", color: "text-emerald-400", bg: "bg-emerald-950 border-emerald-800" },
-  { id: "TitForTat", label: "Tit-for-Tat", desc: "Làm gương đối thủ — ăn miếng trả miếng", color: "text-blue-400", bg: "bg-blue-950 border-blue-800" },
-  { id: "Random", label: "Random", desc: "Ngẫu nhiên 50/50 — không đoán được", color: "text-amber-400", bg: "bg-amber-950 border-amber-800" },
-  { id: "Adaptive", label: "Adaptive", desc: "Học từ lịch sử — tối ưu theo thời gian", color: "text-purple-400", bg: "bg-purple-950 border-purple-800" },
+  { id: "Defector", label: "Defector", desc: "Always betrays — pure self-interest", color: "text-red-400", bg: "bg-red-950 border-red-800" },
+  { id: "Cooperator", label: "Cooperator", desc: "Always cooperates — absolute trust", color: "text-emerald-400", bg: "bg-emerald-950 border-emerald-800" },
+  { id: "TitForTat", label: "Tit-for-Tat", desc: "Mirrors the opponent — eye for an eye", color: "text-blue-400", bg: "bg-blue-950 border-blue-800" },
+  { id: "Random", label: "Random", desc: "Random 50/50 — unpredictable", color: "text-amber-400", bg: "bg-amber-950 border-amber-800" },
+  { id: "Adaptive", label: "Adaptive", desc: "Learns from history — optimizes over time", color: "text-purple-400", bg: "bg-purple-950 border-purple-800" },
 ];
 
 const AI_NAMES = ["AlphaCore", "BetaTrust", "GammaMind", "DeltaX", "EpsilonAI"];
@@ -76,8 +76,8 @@ export default function LandingPage({ onStart, onSpectate, onMultiplayer, loadin
           EQUILIBRIUM
         </h1>
         <p className="text-slate-400 text-lg max-w-md">
-          Thị trường không có kẻ tốt hay xấu.<br />
-          Chỉ có chiến lược thắng và chiến lược thua.
+          The market has no good guys or bad guys.<br />
+          Only winning strategies and losing strategies.
         </p>
       </div>
 
@@ -86,12 +86,12 @@ export default function LandingPage({ onStart, onSpectate, onMultiplayer, loadin
         {/* Player setup */}
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
           <div className="text-xs tracking-widest text-indigo-400 uppercase mb-4">
-            Thông tin công ty
+            Company info
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs tracking-widest text-slate-500 uppercase mb-2 block">
-                Tên công ty
+                Company name
               </label>
               <input
                 type="text"
@@ -100,12 +100,12 @@ export default function LandingPage({ onStart, onSpectate, onMultiplayer, loadin
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3
                            text-white placeholder-slate-600 focus:outline-none
                            focus:border-indigo-500 transition-colors"
-                placeholder="Nhập tên công ty..."
+                placeholder="Enter company name..."
               />
             </div>
             <div>
               <label className="text-xs tracking-widest text-slate-500 uppercase mb-2 block">
-                Ngành
+                Industry
               </label>
               <select
                 value={industry}
@@ -126,10 +126,10 @@ export default function LandingPage({ onStart, onSpectate, onMultiplayer, loadin
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="text-xs tracking-widest text-indigo-400 uppercase">
-              Đối thủ AI
+              AI Competitors
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500">Số công ty:</span>
+              <span className="text-xs text-slate-500">Companies:</span>
               <div className="flex gap-1">
                 {[2, 3, 4, 5].map(n => (
                   <button
@@ -192,7 +192,7 @@ export default function LandingPage({ onStart, onSpectate, onMultiplayer, loadin
                      disabled:text-indigo-600 text-white font-semibold
                      py-4 rounded-xl transition-colors tracking-widest uppercase text-sm"
         >
-          {loading ? "Đang khởi tạo..." : "Bắt đầu →"}
+          {loading ? "Initializing..." : "Start →"}
         </button>
         <button
           onClick={onMultiplayer}
@@ -207,7 +207,7 @@ export default function LandingPage({ onStart, onSpectate, onMultiplayer, loadin
           className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold
              py-3 rounded-xl transition-colors tracking-widest uppercase text-sm"
         >
-          👁 Spectator Mode — Xem AI vs AI
+          👁 Spectator Mode — Watch AI vs AI
         </button>
       </div>
 
