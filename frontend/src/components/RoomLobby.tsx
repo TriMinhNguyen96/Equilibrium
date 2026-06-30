@@ -115,7 +115,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
             strategy_history: [],
           }));
           const me = updated.players.find((p: any) => ((p as any).id ?? p.player_id) === myPlayerId);
-          onGameStart((updated as any).game_id, roomPlayers, me?.name ?? "", me?.industry ?? "");
+          onGameStart((updated as any).game_id, roomPlayers, me?.name ?? "", me?.industry ?? "", (updated as any).time_limit ?? null);
         }
       } catch { /* silent */ }
     };
