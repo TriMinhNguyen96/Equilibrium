@@ -280,7 +280,7 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                                     (history[history.length - 1].payoffs["human"] || 0) >
                                     (history[history.length - 2].payoffs["human"] || 0)
                                         ? <span className="text-emerald-400">↑ Tăng</span>
-                                        : (history[history.length - 1].payoffs["human"] || 0) 
+                                        : (history[history.length - 1].payoffs["human"] || 0)< 
                                           (history[history.length - 2].payoffs["human"] || 0)
                                         ? <span className="text-red-400">↓ Giảm</span>
                                         : <span className="text-slate-400">→ Ổn định</span>
