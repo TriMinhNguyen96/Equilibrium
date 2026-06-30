@@ -119,7 +119,6 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                     </div>
                 </div>
             )}
-</parameter>
 
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
