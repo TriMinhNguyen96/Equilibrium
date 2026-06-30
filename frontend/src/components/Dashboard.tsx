@@ -43,8 +43,9 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
     const wsRef = useRef<GameWebSocket | null>(null);
 
     const startCountdown = () => {
+        if (timeLimit === null) return;
         if (countdownRef.current) clearInterval(countdownRef.current);
-        setCountdown(60);
+        setCountdown(timeLimit);
         countdownRef.current = setInterval(() => {
             setCountdown(prev => {
                 if (prev === null || prev <= 1) {
