@@ -71,10 +71,6 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
             setHistory(prev => [...prev, result]);
             setThinking(false);
             setShowReveal(true);
-            setTimeout(() => {
-                setShowReveal(false);
-                startCountdown();
-            }, 1800);
         });
         return () => {
             wsRef.current?.disconnect();
@@ -105,7 +101,16 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
 
             {showReveal && lastResult && (
                 <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center animate-fade-in">
-                    <div className="bg-slate-900 border-2 border-indigo-500 rounded-2xl p-8 text-center max-w-md animate-reveal-pop">
+                    <div className="bg-slate-900 border-2 border-indigo-500 rounded-2xl p-8 text-center max-w-md animate-reveal-pop relative">
+                        <button
+                            onClick={() => {
+                                setShowReveal(false);
+                                startCountdown();
+                            }}
+                            className="absolute top-3 right-3 text-slate-500 hover:text-white text-xl leading-none w-7 h-7 flex items-center justify-center rounded-full hover:bg-slate-800 transition-colors"
+                        >
+                            ×
+                        </button>
                         <div className="text-xs text-indigo-400 uppercase tracking-widest mb-2">
                             Round {lastResult.round_number} kết thúc
                         </div>
@@ -116,6 +121,15 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                         <div className="text-4xl font-bold text-white">
                             {lastResult.payoffs["human"] || 0}
                         </div>
+                        <button
+                            onClick={() => {
+                                setShowReveal(false);
+                                startCountdown();
+                            }}
+                            className="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
+                        >
+                            Tiếp tục →
+                        </button>
                     </div>
                 </div>
             )}
