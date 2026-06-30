@@ -7,10 +7,11 @@ import Dashboard from "./components/Dashboard";
 import LandingPage from "./components/LandingPage";
 import SpectatorMode from "./components/SpectatorMode";
 import RoomLobby from "./components/RoomLobby";
+import TimeLimitPicker from "./components/TimeLimitPicker";
 import { api } from "./services/api";
 import type { Player } from "./services/api";
 
-type Screen = "landing" | "game" | "spectator" | "room";
+type Screen = "landing" | "time-picker-solo" | "time-picker-room" | "game" | "spectator" | "room";
 
 interface AISlot {
   name: string;
@@ -25,22 +26,33 @@ export default function App() {
   const [playerName, setPlayerName] = useState("Player");
   const [industry, setIndustry] = useState("Technology");
   const [loading, setLoading] = useState(false);
+  const [timeLimit, setTimeLimit] = useState<number | null>(null);
 
-  // ── Solo game (existing flow) ──
-  const handleStart = async (name: string, ind: string, aiSlots: AISlot[]) => {
+  // Pending solo game config (waiting for time limit selection)
+  const [pendingSolo, setPendingSolo] = useState<{ name: string; ind: string; aiSlots: AISlot[] } | null>(null);
+
+  // ── Solo game: go to time picker first ──
+  const handleStartRequest = (name: string, ind: string, aiSlots: AISlot[]) => {
+    setPendingSolo({ name, ind, aiSlots });
+    setScreen("time-picker-solo");
+  };
+
+  const handleSoloTimeSelected = async (seconds: number | null) => {
+    if (!pendingSolo) return;
+    setTimeLimit(seconds);
     setLoading(true);
     try {
       const result = await api.createGame({
-        player_name: name,
-        industry: ind,
+        player_name: pendingSolo.name,
+        industry: pendingSolo.ind,
         difficulty: "Normal",
-        n_competitors: aiSlots.length,
-        ai_slots: aiSlots,
+        n_competitors: pendingSolo.aiSlots.length,
+        ai_slots: pendingSolo.aiSlots,
       });
       setGameId(result.game_id);
       setPlayers(result.players);
-      setPlayerName(name);
-      setIndustry(ind);
+      setPlayerName(pendingSolo.name);
+      setIndustry(pendingSolo.ind);
       setScreen("game");
     } catch (err) {
       console.error("Failed to create game:", err);
@@ -49,12 +61,13 @@ export default function App() {
     }
   };
 
-  // ── Multiplayer game start (từ RoomLobby) ──
-  const handleRoomGameStart = (gId: string, ps: Player[], pName: string, ind: string) => {
+  // ── Multiplayer game start (from RoomLobby) ──
+  const handleRoomGameStart = (gId: string, ps: Player[], pName: string, ind: string, roomTimeLimit: number | null) => {
     setGameId(gId);
     setPlayers(ps);
     setPlayerName(pName);
     setIndustry(ind);
+    setTimeLimit(roomTimeLimit);
     setScreen("game");
   };
 
@@ -62,10 +75,16 @@ export default function App() {
     <div className="min-h-screen bg-[#0a0e1a] text-white font-mono">
       {screen === "landing" && (
         <LandingPage
-          onStart={handleStart}
+          onStart={handleStartRequest}
           onSpectate={() => setScreen("spectator")}
           onMultiplayer={() => setScreen("room")}
           loading={loading}
+        />
+      )}
+      {screen === "time-picker-solo" && (
+        <TimeLimitPicker
+          onSelect={handleSoloTimeSelected}
+          onBack={() => setScreen("landing")}
         />
       )}
       {screen === "game" && (
@@ -74,6 +93,7 @@ export default function App() {
           players={players}
           playerName={playerName}
           industry={industry}
+          timeLimit={timeLimit}
         />
       )}
       {screen === "spectator" && (

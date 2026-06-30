@@ -162,6 +162,7 @@ export interface RoomConfig {
   host_name: string;
   industry: string;
   max_players?: number;
+  time_limit?: number | null;
 }
 
 export interface JoinRequest {

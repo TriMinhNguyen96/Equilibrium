@@ -57,6 +57,7 @@ class RoomConfig(BaseModel):
     industry: str
     max_players: int = 4
     n_ai: int = 0
+    time_limit: Optional[int] = None
 
 class JoinRequest(BaseModel):
     room_code: str
@@ -230,6 +231,7 @@ def api_create_room(config: RoomConfig):
         "n_ai": config.n_ai,
         "game_id": None,
         "round_decisions": {},
+        "time_limit": config.time_limit,
     }
     return {"room_code": room_code, "player_id": "human_0", "room": rooms[room_code]}
 

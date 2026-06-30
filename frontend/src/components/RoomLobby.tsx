@@ -14,8 +14,16 @@ type LobbyMode = "menu" | "create" | "join" | "waiting";
 
 interface Props {
   onBack: () => void;
-  onGameStart: (gameId: string, players: Player[], playerName: string, industry: string) => void;
+  onGameStart: (gameId: string, players: Player[], playerName: string, industry: string, timeLimit: number | null) => void;
 }
+
+const TIME_OPTIONS = [
+  { label: "No limit", value: null },
+  { label: "1 min", value: 60 },
+  { label: "5 min", value: 300 },
+  { label: "10 min", value: 600 },
+  { label: "15 min", value: 900 },
+];
 
 // ============================================================
 // CONSTANTS
@@ -76,6 +84,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
   const [industry, setIndustry] = useState("Technology");
   const [roomCode, setRoomCode] = useState("");
   const [joinCode, setJoinCode] = useState("");
+  const [roomTimeLimit, setRoomTimeLimit] = useState<number | null>(null);
 
   // Room state
   const [room, setRoom] = useState<RoomState | null>(null);
@@ -128,7 +137,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
     if (!name.trim()) { setError("Please enter your name"); return; }
     setLoading(true); setError("");
     try {
-      const res = await roomApi.createRoom({ host_name: name.trim(), industry });
+      const res = await roomApi.createRoom({ host_name: name.trim(), industry, time_limit: roomTimeLimit });
       setRoomCode(res.room_code);
       setMyPlayerId(res.player_id);
       setRoom(res.room);
@@ -176,7 +185,7 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
         strategy_history: [],
       }));
       if (gamePlayers.length === 0) { setError("Backend did not return players"); setLoading(false); return; }
-      onGameStart(res.game_id, gamePlayers, me?.name ?? name, me?.industry ?? industry);
+      onGameStart(res.game_id, gamePlayers, me?.name ?? name, me?.industry ?? industry, roomTimeLimit);
     } catch {
       setError("Failed to start — need at least 2 players");
     } finally {
@@ -244,6 +253,24 @@ export default function RoomLobby({ onBack, onGameStart }: Props) {
             className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">
             {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
           </select>
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">TIME LIMIT PER ROUND</label>
+          <div className="grid grid-cols-3 gap-2">
+            {TIME_OPTIONS.map(opt => (
+              <button
+                key={opt.label}
+                onClick={() => setRoomTimeLimit(opt.value)}
+                className={`py-2 rounded text-xs font-semibold transition-colors
+                  ${roomTimeLimit === opt.value
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-900 border border-gray-700 text-gray-400 hover:border-gray-500"}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {error && <p className="text-red-400 text-xs">{error}</p>}

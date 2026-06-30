@@ -23,13 +23,14 @@ interface Props {
     players: Player[];
     playerName: string;
     industry: string;
+    timeLimit?: number | null; // seconds, null = no limit
 }
 
 // ============================================================
 // UI
 // ============================================================
 
-export default function Dashboard({ gameId, players: initialPlayers, playerName, industry }: Props) {
+export default function Dashboard({ gameId, players: initialPlayers, playerName, industry, timeLimit = null }: Props) {
     const [players, setPlayers] = useState<Player[]>(initialPlayers);
     const [history, setHistory] = useState<RoundResult[]>([]);
     const [round, setRound] = useState(0);
