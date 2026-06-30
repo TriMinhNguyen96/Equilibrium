@@ -260,6 +260,70 @@ export default function Dashboard({ gameId, players: initialPlayers, playerName,
                 </div>
             )}
 
+            {/* Your Stats Panel */}
+            {humanPlayer && (
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-4">
+                    <div className="text-xs text-slate-500 uppercase tracking-widest mb-4">
+                        Your Stats
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <div className="text-xs text-slate-600 mb-1">Total Payoff</div>
+                            <div className="text-lg font-bold text-indigo-400">
+                                {humanPlayer.total_payoff}
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-slate-600 mb-1">Trend</div>
+                            <div className="text-lg font-bold">
+                                {history.length >= 2 ? (
+                                    (history[history.length - 1].payoffs["human"] || 0) >
+                                    (history[history.length - 2].payoffs["human"] || 0)
+                                        ? <span className="text-emerald-400">↑ Tăng</span>
+                                        : (history[history.length - 1].payoffs["human"] || 0) 
+                                          (history[history.length - 2].payoffs["human"] || 0)
+                                        ? <span className="text-red-400">↓ Giảm</span>
+                                        : <span className="text-slate-400">→ Ổn định</span>
+                                ) : (
+                                    <span className="text-slate-600">—</span>
+                                )}
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-slate-600 mb-1">Rounds Played</div>
+                            <div className="text-lg font-bold text-slate-300">
+                                {history.length}
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-slate-600 mb-1">Nash Reached</div>
+                            <div className="text-lg font-bold text-amber-400">
+                                {history.length > 0
+                                    ? `${Math.round(history.filter(r => r.is_nash).length / history.length * 100)}%`
+                                    : "—"}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div className="text-xs text-slate-600 mb-2">Strategy History (5 round gần nhất)</div>
+                        <div className="flex gap-1">
+                            {(humanPlayer.strategy_history || []).slice(-5).length > 0 ? (
+                                (humanPlayer.strategy_history || []).slice(-5).map((s, j) => (
+                                    <div key={j}
+                                        className={`flex-1 h-8 rounded text-xs flex items-center justify-center font-bold
+                                        transition-all duration-300
+                                        ${s === "Cooperate" ? "bg-emerald-900 text-emerald-400" : "bg-red-900 text-red-400"}`}>
+                                        {s === "Cooperate" ? "C" : "D"}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-xs text-slate-600">Chưa có lịch sử</div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Strategy Chat */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
                 <div className="text-xs text-slate-500 uppercase tracking-widest mb-3">
