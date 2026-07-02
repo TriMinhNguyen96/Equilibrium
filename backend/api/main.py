@@ -121,7 +121,7 @@ def serialize_result(result, players) -> dict:
             {
                 "id": p.id, "name": p.name, "industry": p.industry,
                 "market_share": p.market_share, "total_payoff": p.total_payoff,
-                "strategy_history": p.strategy_history
+                "strategy_history": p.strategy_history, "is_bankrupt": p.is_bankrupt
             }
             for p in players
         ]

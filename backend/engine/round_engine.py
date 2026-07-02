@@ -26,6 +26,7 @@ class Player:
     market_share: float = 0.0
     total_payoff: float = 0.0
     strategy_history: list = field(default_factory=list)
+    is_bankrupt: bool = False
 
 @dataclass
 class RoundResult:
@@ -152,7 +153,14 @@ class RoundEngine:
 
         # Normalize để tổng = 100%
         total = sum(new_shares.values())
-        return {pid: round(s / total * 100, 2) for pid, s in new_shares.items()}
+        new_shares = {pid: round(s / total * 100, 2) for pid, s in new_shares.items()}
+
+        # Check bankruptcy — player nào < 5% thị phần thì bị loại
+        for p in self.players:
+            if new_shares.get(p.id, 0) < 5.0 and not p.is_bankrupt:
+                p.is_bankrupt = True
+
+        return new_shares
 
     def get_leaderboard(self) -> list:
         """Xếp hạng players theo market share hiện tại"""
