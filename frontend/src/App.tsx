@@ -28,7 +28,7 @@ export default function App() {
   const [industry, setIndustry] = useState("Technology");
   const [loading, setLoading] = useState(false);
   const [timeLimit, setTimeLimit] = useState<number | null>(null);
-  const [roundLimit, setRoundLimit] = useState<number | null>(null);
+  const [_roundLimit, setRoundLimit] = useState<number | null>(null);
   const [roomCode, setRoomCode] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
